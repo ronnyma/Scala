@@ -77,6 +77,13 @@ object Huffman {
     * }
     */
   def times(chars: List[Char]): List[(Char, Int)] = {
+    def condense(tuple: (Char, Int), list: List[(Char, Int)]): List[(Char, Int)] = list match {
+      case Nil => tuple :: list
+      case x :: xs => {
+        if (x._1 == tuple._1) (tuple._1, x._2 + 1) :: xs
+        else x :: condense(tuple, xs)
+      }
+    }
     def loop(chars: List[Char], acc: List[(Char, Int)]): List[(Char, Int)] = chars match {
       case Nil => acc
       case x :: xs => {
@@ -87,13 +94,7 @@ object Huffman {
     loop(chars, Nil)
   }
 
-  def condense(tuple: (Char, Int), list: List[(Char, Int)]): List[(Char, Int)] = list match {
-    case Nil => tuple :: list
-    case x :: xs => {
-      if (x._1 == tuple._1) (tuple._1, x._2 + 1) :: xs
-      else x :: condense(tuple, xs)
-    }
-  }
+
 
   /**
     * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
