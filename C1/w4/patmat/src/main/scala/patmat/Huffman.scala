@@ -79,22 +79,19 @@ object Huffman {
   def times(chars: List[Char]): List[(Char, Int)] = {
     def condense(tuple: (Char, Int), list: List[(Char, Int)]): List[(Char, Int)] = list match {
       case Nil => tuple :: list
-      case x :: xs => {
+      case x :: xs =>
         if (x._1 == tuple._1) (tuple._1, x._2 + 1) :: xs
         else x :: condense(tuple, xs)
-      }
     }
+
     def loop(chars: List[Char], acc: List[(Char, Int)]): List[(Char, Int)] = chars match {
       case Nil => acc
-      case x :: xs => {
+      case x :: xs =>
         loop(xs, condense((x, 1), acc))
-      }
     }
 
     loop(chars, Nil)
   }
-
-
 
   /**
     * Returns a list of `Leaf` nodes for a given frequency table `freqs`.
@@ -109,14 +106,17 @@ object Huffman {
       case y :: ys =>
         if (x._2 <= y._2) x :: xs else y :: insert(x, ys)
     }
+
     def makeLeaf(tuple: List[(Char, Int)]): List[Leaf] = tuple match {
       case Nil => Nil
       case x :: xs => Leaf(x._1, x._2) :: makeLeaf(xs)
     }
+
     def makeOrderedTupleList(freqs: List[(Char, Int)]): List[(Char, Int)] = freqs match {
       case Nil => Nil
       case x :: xs => insert(x, makeOrderedTupleList(xs))
     }
+
     makeLeaf(makeOrderedTupleList(freqs))
   }
 
@@ -137,7 +137,22 @@ object Huffman {
     * If `trees` is a list of less than two elements, that list should be returned
     * unchanged.
     */
-  def combine(trees: List[CodeTree]): List[CodeTree] = ???
+
+  def combine(trees: List[CodeTree]): List[CodeTree] = {
+    def insert(x: CodeTree, xs: List[CodeTree]): List[CodeTree] = xs match {
+      case Nil => List(x)
+      case y :: ys =>
+        if (weight(x) <= weight(y)) x :: xs else y :: insert(x, ys)
+    }
+
+    def combinator(trees: List[CodeTree]): List[CodeTree] = trees match {
+      case Nil => Nil
+      case x :: Nil => x :: Nil
+      case x :: y :: xs => insert(makeCodeTree(x, y), xs)
+    }
+
+    combinator(trees)
+  }
 
   /**
     * This function will be called in the following way:
@@ -156,7 +171,7 @@ object Huffman {
     * the example invocation. Also define the return type of the `until` function.
     *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
     */
-  def until(xxx: ???, yyy: ???)(zzz: ???): ??? = ???
+  def until(singleton: CodeTree => Boolean, codetree: List[CodeTree] => List[CodeTree])(trees: CodeTree): List[CodeTree] = ???
 
   /**
     * This function creates a code tree which is optimal to encode the text `chars`.
@@ -186,7 +201,7 @@ object Huffman {
 
   /**
     * What does the secret message say? Can you decode it?
-    * For the decoding use the `frenchCode' Huffman tree defined above.
+    * For the decoding use the  'frenchCode' Huffman tree defined above.
     **/
   val secret: List[Bit] = List(0, 0, 1, 1, 1, 0, 1, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1)
 
