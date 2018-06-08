@@ -1,11 +1,9 @@
 package patmat
 
 import org.scalatest.FunSuite
-
 import org.junit.runner.RunWith
 import org.scalatest.junit.JUnitRunner
-
-import patmat.Huffman._
+import patmat.Huffman.{Leaf, _}
 
 @RunWith(classOf[JUnitRunner])
 class HuffmanSuite extends FunSuite {
@@ -45,12 +43,19 @@ class HuffmanSuite extends FunSuite {
 
   test("combine of some leaf list") {
     val leaflist = List(Leaf('e', 1), Leaf('t', 2), Leaf('x', 4))
-    val l2 = List(Leaf('c',1), Leaf('f',1), Leaf('k',1), Leaf('a',2), Leaf('d',3), Leaf('b',3))
+    val l2 = List(Leaf('c', 1), Leaf('f', 1), Leaf('k', 1), Leaf('a', 2), Leaf('d', 3), Leaf('b', 3))
 
     assert(combine(leaflist) === List(Fork(Leaf('e', 1), Leaf('t', 2), List('e', 't'), 3), Leaf('x', 4)))
     assert(combine(l2) === List(Leaf('k', 1), Fork(Leaf('c', 1), Leaf('f', 1), List('c', 'f'), 2), Leaf('a', 2), Leaf('d', 3), Leaf('b', 3)))
   }
 
+//  test("create a tree (until)") {
+//    new TestTrees {
+//      val l = List(Fork(Fork(Leaf('x', 1), Leaf('e', 1), List('x', 'e'), 2), Leaf('t', 2), List('x', 'e', 't'), 4), Leaf('a', 2), Leaf('d', 3), Leaf('b', 3))
+//
+//      assert(until(singleton, combine)(l.h).size == 1)
+//    }
+//  }
 
   test("decode and encode a very short text should be identity") {
     new TestTrees {

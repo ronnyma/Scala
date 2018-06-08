@@ -171,7 +171,10 @@ object Huffman {
     * the example invocation. Also define the return type of the `until` function.
     *  - try to find sensible parameter names for `xxx`, `yyy` and `zzz`.
     */
-  def until(singleton: CodeTree => Boolean, codetree: List[CodeTree] => List[CodeTree])(trees: CodeTree): List[CodeTree] = ???
+  def until(singleton: List[CodeTree] => Boolean, codetree: List[CodeTree] => List[CodeTree])(trees: List[CodeTree]): List[CodeTree] =
+    if (singleton(trees)) trees
+    else until(singleton, combine)(combine(trees))
+
 
   /**
     * This function creates a code tree which is optimal to encode the text `chars`.
@@ -179,7 +182,7 @@ object Huffman {
     * The parameter `chars` is an arbitrary text. This function extracts the character
     * frequencies from that text and creates a code tree based on them.
     */
-  def createCodeTree(chars: List[Char]): CodeTree = ???
+  def createCodeTree(chars: List[Char]): CodeTree = until(singleton, combine)(makeOrderedLeafList(times(chars))).head
 
 
   // Part 3: Decoding
@@ -190,7 +193,14 @@ object Huffman {
     * This function decodes the bit sequence `bits` using the code tree `tree` and returns
     * the resulting list of characters.
     */
-  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = ???
+  def decode(tree: CodeTree, bits: List[Bit]): List[Char] = {
+    def dec(tr: CodeTree, bits: List[Bit]): List[Char] = tr match {
+      case Leaf(c, _) => if (bits.isEmpty) List(c) else c :: dec(tree, bits)
+      case Fork(l, r, _, _) => if (bits.head == 0) dec(l, bits.tail) else dec(r, bits.tail)
+    }
+
+    dec(tree, bits)
+  }
 
   /**
     * A Huffman coding tree for the French language.
@@ -208,7 +218,7 @@ object Huffman {
   /**
     * Write a function that returns the decoded secret
     */
-  def decodedSecret: List[Char] = ???
+  def decodedSecret: List[Char] = decode(frenchCode, secret)
 
 
   // Part 4a: Encoding using Huffman tree
@@ -217,7 +227,18 @@ object Huffman {
     * This function encodes `text` using the code tree `tree`
     * into a sequence of bits.
     */
-  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = ???
+  def encode(tree: CodeTree)(text: List[Char]): List[Bit] = {
+    def enc(tr: CodeTree)(t: Char): List[Bit] = tr match {
+      case Leaf(_, _) => Nil
+      case Fork(l, r, _, _) => if (chars(l).contains(t)) 0 :: enc(l)(t) else 1 :: enc(r)(t)
+    }
+
+    def tokenize(t: List[Char], b: List[Bit]): List[Bit] =
+      if (t.isEmpty) b
+      else tokenize(t.tail, b ::: enc(tree)(t.head))
+
+    tokenize(text, Nil)
+  }
 
   // Part 4b: Encoding using code table
 
